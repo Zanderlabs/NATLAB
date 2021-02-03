@@ -360,6 +360,18 @@ else % INEEG is an EEG struct
     if ~isfield(INEEG1.event,'epoch') && ~isempty(INEEG1.event) && (size(INEEG1.data,3)>1 || ~isempty(INEEG1.epoch))
         INEEG1.event(1).epoch = [];
     end
+
+    
+    % Merge field with XDF timestamps (called "stamps") if
+    % it is available at least in one of the two EEG structures
+    % that were provided.
+    % ----------------------------------
+    if ( isfield ( INEEG1, 'stamps' ) || isfield ( INEEG2, 'stamps' ) )
+      INEEG1.stamps = cat ( 2, ...
+         fastif ( isfield ( INEEG1, 'stamps' ), INEEG1.stamps, [] ), ...
+         fastif ( isfield ( INEEG2, 'stamps' ), INEEG2.stamps, [] ) );
+    end
+    
     
     % rebuild event-related epoch fields
     % ----------------------------------
