@@ -34,5 +34,9 @@ else
     % otherwise calculate the labels
     trials = trials(:,model.featuremask);
     raw_labels = min(+1,max(-1,trials*model.w' - model.b));
-    pred = {'disc', [(1-raw_labels)/2 1-(1-raw_labels)/2], model.classes};
+
+    % Raw distance from the hyperplane as additional output
+    raw_labels_unbounded = trials*model.w' - model.b;
+    
+    pred = {'disc', [(1-raw_labels)/2 1-(1-raw_labels)/2], model.classes, raw_labels_unbounded };
 end
