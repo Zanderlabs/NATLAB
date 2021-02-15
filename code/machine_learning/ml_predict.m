@@ -72,5 +72,11 @@ else
         % sort discrete distributions
         [classes,inds] = sort(pred{3});
         pred = {pred{1} pred{2}(:,inds) classes};
+        
+    % Enable 4th prediction output, as used in ml_predictlda.m
+    elseif iscell(pred) && length(pred) == 4 && strcmp(pred{1},'disc')
+        % sort discrete distributions
+        [classes,inds] = sort(pred{3});
+        pred = {pred{1} pred{2}(:,inds) classes pred{4}};
     end
 end

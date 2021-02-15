@@ -21,11 +21,24 @@ if isnumeric(varargin{1})
     end
 elseif iscell(varargin{1}) && length(varargin{1}) > 1
     % make sure that the result formats are all equal
-    v1 = varargin{1}([1 3:end]);
-    for i=2:length(varargin)
-        if ~isequal(v1,varargin{i}([1 3:end]))
-            error('The formats of all prediction arrays to concatenate need to be identical.'); end
+    
+    % Enable 4th output, raw hyperplane distance for LDA
+    if ( strcmpi ( varargin{1}(1), 'Disc' ) && length ( varargin{1} ) == 4 )
+      v1 = varargin{1}([1 3]);
+      for i=2:length(varargin)
+          if ~isequal(v1,varargin{i}([1 3]))
+              error('The formats of all prediction arrays to concatenate need to be identical.'); end
+      end
+      
+    % ... otherwise generic check for all types of prediction outputs
+    else
+      v1 = varargin{1}([1 3:end]);
+      for i=2:length(varargin)
+          if ~isequal(v1,varargin{i}([1 3:end]))
+              error('The formats of all prediction arrays to concatenate need to be identical.'); end
+      end
     end
+    
     % grab the actual parameters
     params = cellfun(@(x)x{2},varargin,'UniformOutput',false);
     if isnumeric(varargin{1}{2})
