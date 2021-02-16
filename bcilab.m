@@ -121,3 +121,5 @@ catch
     save bcilab_crashreport report
     rethrow(lasterror);
 end
+
+end

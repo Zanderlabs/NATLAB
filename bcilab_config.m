@@ -73,6 +73,10 @@ data_reuses = 3;
 % your BCILAB installation path with -temp appended.
 temp = [];
 
+% Automatically delete temporarily stored data sets on BCILAB startup. 
+temp_auto_clean = false;
+
+
 % If you have private plugins that you manage separately from the bcilab directory tree, you can set
 % the path to these here (using the same sub-directory structure as ~/.bcilab/, see that folder for
 % reference).

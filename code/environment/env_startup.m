@@ -484,7 +484,14 @@ if ~isempty(opts.private)
 fprintf('\n');
 
 
-% turn off a few warnings
+%% If this option is set to true in bcilab_config.m, then remove all
+% temporarily stored data sets
+if ( isfield ( opts, 'temp_auto_clean' ) && ~isempty ( opts.temp_auto_clean ) && opts.temp_auto_clean )
+  utl_clean_temp_folder ( opts );
+end
+
+
+%% turn off a few warnings
 warning off MATLAB:structOnObject
 warning off MATLAB:log:logOfZero
 warning off MATLAB:divideByZero %#ok<RMWRN>
