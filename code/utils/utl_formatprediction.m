@@ -18,6 +18,7 @@ function prediction = utl_formatprediction(prediction,out_format)
 %                 * 'mode': the mode [Nx1], or most likely output value (only supported for discrete
 %                           probability distributions)
 %                 * 'raw': the raw prediction, as defined by ml_predict
+%                 * 'rawScore': the raw score, for example raw distance from hyperplane as implemented in ml_predictlda
 % 
 % Out:
 %   Formatted-Prediction : The formatted output, as described in Format
@@ -68,6 +69,16 @@ if iscell(prediction) && length(prediction) >= 2
         case 'distribution'
             % we just return the distribution's parameters; the type of the distribution is meta-data
             prediction = prediction{2};
+        case 'rawScore'
+            % Raw distance from hyperplane, as implemented for LDA in
+            % ml_predictlda.m
+            if strcmp(prediction{1},'disc')
+                if ( length(prediction) ~= 4 )
+                    error('For predicting the raw distance from the hyperplane for methods such as LDA a 3-element cell array of the form {''disc'',Values,Classes,RawScore} is expected; see ml_predictlda.'); 
+                end
+                % discrete distribution
+                prediction = prediction{4};
+            end
         otherwise
             error('Unknown output format: %s',out_format);
     end

@@ -23,6 +23,7 @@ function y = onl_predict(name,outfmt,suppress_console_output,empty_result_value)
 %                 * 'mode': the mode [Nx1], or most likely output value (only supported for discrete
 %                           probability distributions)
 %                 * 'raw': the raw prediction, as defined by ml_predict
+%                 * 'rawScore': the raw score, for example raw distance from hyperplane as implemented in ml_predictlda
 %
 %   SuppressOutput : whether to suppress console output (default: true)
 %
@@ -50,8 +51,8 @@ function y = onl_predict(name,outfmt,suppress_console_output,empty_result_value)
             error('You need to supply at least the PredictorName argument'); end
         if nargin < 2
             outfmt = 'raw'; 
-        elseif ~any(strcmp(outfmt,{'raw','expectation','mode','distribution'}))
-            error('The given Format argument must be one of {''raw'',''expectation'',''mode'',''distribution''}, but was: %s',hlp_tostring(outfmt,10000));
+        elseif ~any(strcmp(outfmt,{'raw','expectation','mode','distribution','rawScore'}))
+            error('The given Format argument must be one of {''raw'',''expectation'',''mode'',''distribution'',''rawScore''}, but was: %s',hlp_tostring(outfmt,10000));
         end
         if nargin < 3
             suppress_console_output = true; 
@@ -59,8 +60,8 @@ function y = onl_predict(name,outfmt,suppress_console_output,empty_result_value)
             error('The given SuppressOutput argument must be logical (true or false), but was: %s',hlp_tostring(suppress_console_output,10000));
         end
     else
-        if ~any(strcmp(outfmt,{'raw','expectation','mode','distribution'}))
-            error('The given Format argument must be one of {''raw'',''expectation'',''mode'',''distribution''}, but was: %s',hlp_tostring(outfmt,10000)); end
+        if ~any(strcmp(outfmt,{'raw','expectation','mode','distribution','rawScore'}))
+            error('The given Format argument must be one of {''raw'',''expectation'',''mode'',''distribution'',''rawScore''}, but was: %s',hlp_tostring(outfmt,10000)); end
         if ~islogical(suppress_console_output)
             error('The given SuppressOutput argument must be logical (true or false), but was: %s',hlp_tostring(suppress_console_output,10000)); end
     end
