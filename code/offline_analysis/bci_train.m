@@ -662,6 +662,9 @@ end
 
 % --- validate and pre-process the inputs ---
 
+dTimeStart = tic;
+
+
 % parse the approach (either it's a paradigm name string, a cell array, or a struct)
 if ischar(opts.approach)
     % one of the class names in code/paradigms, without the leading 'Paradigm' prefix, e.g., 'CSP'
@@ -878,6 +881,41 @@ model = utl_prune_handles(model);
 stats = utl_prune_handles(stats);
 model.tracking.prediction_function = paradigm_ref;
 stats.model = model;
+
+% Measure calibration time.
+dTimeExec = toc ( dTimeStart );
+
+% Display summary information
+fprintf ( '\n\nFinished calibration for approach [%s], took [%2.1f] min.', paradigm_ref, dTimeExec ./ 60 );
+
+% Make sure the fields we use exist and are populated
+if ( ~isempty ( stats ) && isfield ( stats, 'classes' ) && ~isempty ( stats.classes ) )
+  
+  fprintf ( '\n\nThe order in which markers are provided determines class association, i.e. 1st marker => class 1, etc.', num2str(stats.classes(:)') );
+
+  fprintf ( '\n\nClass 1 is associated with negative label in confusion matrix (i.e. TN, FN), class 2 with positive label.\n' );
+
+  
+  % Output markers for classes
+  for ( iCIdx = 1:length ( stats.classes ) )
+    
+    fprintf ( '\nClass [%s], marker(s):\n', num2str(stats.classes(iCIdx)) );
+
+    caCurMarkers = opts.markers{iCIdx};
+    
+    if ( ischar ( caCurMarkers ) );
+      fprintf ( '  %s\n', string(caCurMarkers) );
+    elseif ( iscell ( caCurMarkers ) )
+      for ( iMIdx = 1:length ( caCurMarkers ) )
+        fprintf ( '  %s\n', string(caCurMarkers{iMIdx}) );
+      end
+    end
+    
+  end
+  
+  fprintf ( '\n\n' );
+end
+
 end
 
 
