@@ -190,6 +190,38 @@ else
                         stats.FP = sum(T==classes(1) & P==classes(2))/sum(T==classes(1)); % fixed FP/FN rates, reported by Matt Peterson.
                         stats.FN = sum(T==classes(2) & P==classes(1))/sum(T==classes(2));
                     end
+                    
+                    
+                    %% Determine level of chance accuracy
+                    
+                    try 
+
+                      stats.trials_per_class = [];
+
+                      % First, determine number of trials per class
+                      for ( iCIdx = 1:length ( classes ) )
+                        % Run through classes, determine which of the trials/true labels
+                        % belong to that class and count the trials for that class.
+                        stats.trials_per_class(1,iCIdx) = sum ( T == classes ( iCIdx ) );
+                      end
+
+                      % Calculate chance based on binomial proportions confidence intervals (Wilson)
+                      stats.chance_wilson_strat_p05  = stats_binom_CI_chance ( stats.trials_per_class, 0.05 );
+                      stats.chance_all_metrics.chance_wilson_strat_p05  = stats_binom_CI_chance ( stats.trials_per_class, 0.05 );
+                      stats.chance_all_metrics.chance_wilson_strat_p01  = stats_binom_CI_chance ( stats.trials_per_class, 0.01 );
+                      stats.chance_all_metrics.chance_wilson_biased_p05 = stats_binom_CI_chance ( stats.trials_per_class, 0.05, 'cfr_type', 'most_frequent' );
+                      stats.chance_all_metrics.chance_wilson_biased_p01 = stats_binom_CI_chance ( stats.trials_per_class, 0.01, 'cfr_type', 'most_frequent' );
+
+                      % Compute chance accuracy based on a simulation
+                      stats.chance_all_metrics.chance_simulation_25k_p05 = stats_simulate_chance ( stats.trials_per_class, 0.05 );
+                      stats.chance_all_metrics.chance_simulation_25k_p01 = stats_simulate_chance ( stats.trials_per_class, 0.01 );
+                      
+                    catch e
+                      
+                      fprintf ( '\n\nError: Could not determine chance accuracy.\n\n' );
+                      
+                    end
+                    
                 end
 
             otherwise
