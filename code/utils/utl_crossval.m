@@ -224,7 +224,9 @@ opts = arg_define(0:1,varargin, ...
     arg({'only_cached_results','OnlyCachedResults'},false,[],'Load only results that are in the cache. This will not run any computations (aside from pre-checks, that can be disabled by setting NoPrechecks to true).'), ...
     arg({'no_prechecks','NoPrechecks'},false,[],'Skip pre-checks that access the data. This can save some time when it would take very long to load the data, especially when performing parallel computation.'), ...
     arg({'tolerate_exceptions','TolerateExceptions'},false,[],'Tolerate exceptions during training. If this happens, folds where the training function yielded errors will be skipped.'), ...
-    arg({'collect_models','CollectModels'},false,[],'Collect models per fold. Note that this increases the amount of data returned.'));
+    arg({'collect_models','CollectModels'},false,[],'Collect models per fold. Note that this increases the amount of data returned.'), ...
+    ... % Enable stratified class proportions in CV folds
+    arg({'stratify','StratifyClassProportions'},false,[],'Stratified class proportions in CV folds. Tries to maintain class proportions in CV folds using Matlab methods.'));
 
 data = opts.data; opts = rmfield(opts,'data');
 
@@ -256,8 +258,6 @@ else
     error('The partitioner returned an unsupported index set format: %s',hlp_tostring(indexset,10000));
 end
 
-% derive partition index ranges from CV scheme & indexset
-inds = make_indices(opts.scheme,indexset,opts.repeatable);
 
 % validate the target argument
 if ~isa(opts.target,'function_handle')
@@ -268,6 +268,32 @@ try
 catch e
     error('The given target function failed to extract target values from the data with error: %s',hlp_handleerror(e));
 end
+
+
+% Enable stratifying class proportions
+if ( opts.stratify && exist ( 'tmptargets', 'var' ) && ~isempty ( tmptargets ) )
+
+  try 
+    
+    % Derive partition index ranges from CV scheme & indexset while trying to stratify class proportions
+    inds = make_indices ( opts.scheme, indexset, opts.repeatable, tmptargets );
+    
+  catch eMakeIdc
+    
+    fprintf ( '\nError trying to produce indices for crossvalidation folds in stratified way. Falling back to regular mode.\n' );
+    
+    % Derive partition index ranges from CV scheme & indexset in original way.
+    inds = make_indices ( opts.scheme, indexset, opts.repeatable );
+    
+  end
+    
+else
+
+  % Derive partition index ranges from CV scheme & indexset in original way.
+  inds = make_indices ( opts.scheme, indexset, opts.repeatable );
+
+end
+
 
 % parse and validate the metric argument
 if ischar(opts.metric) && ~isempty(opts.metric) && opts.metric(1) == '@'
@@ -382,9 +408,19 @@ end
 
 % --- index set generation for data partitioning ---
 
-function inds = make_indices(S,N,repeatable)
+function inds = make_indices(S,N,repeatable,tmptargets)
 % Inds = make_indices(Scheme,Index-Cardinality)
 % make cross-validation indices for each fold, from the scheme and the index set cardinality
+
+stratify = false;
+
+% Enable stratifying class proportions
+if ( exist ( 'tmptargets', 'var' ) )
+  
+  stratify = true;
+  
+end
+
 
 if isnumeric(N) && isscalar(N)
     % set parameter defaults
@@ -525,10 +561,69 @@ if isnumeric(N) && isscalar(N)
             if k < 1
                 % p-holdout
                 inds{end+1} = sort(perm((round(N*(1-k))+1):N)); %#ok<AGROW>
+
+            % Enable stratified shuffling of trials within folds using MATLAB methods
+            elseif ( stratify )
+
+                % Create CV partition object where folds are stratified in terms of class partitioning
+                stCV = cvpartition ( tmptargets, 'KFold', k );
+
+                % Assign indices for the k different folds
+                for ( iCVIdx = 1:k )
+                  inds{end+1} = sort ( find ( test ( stCV, iCVIdx )' ) );
+                end
+
+                
+                %% DEBUG output of class proportions for stratified configuration
+                if ( false )
+
+                  C1 = sum( tmptargets == 1 ) / length ( tmptargets );
+                  C2 = sum( tmptargets == 2 ) / length ( tmptargets );
+                  
+                  fprintf ( '\n\nDebugging info on stratifying class proportions; overall: %1.2f to %1.2f', C1, C2 );
+                  
+                  for ( iDBIdx = 1:length ( inds ) )
+                    
+                    C1 = sum( tmptargets(inds{iDBIdx}) == 1 ) / length ( tmptargets(inds{iDBIdx}) );
+                    C2 = sum( tmptargets(inds{iDBIdx}) == 2 ) / length ( tmptargets(inds{iDBIdx}) );
+
+                    fprintf ( '\nFold [%2d] class ratios, %1.2f to %1.2f', iDBIdx, C1, C2 );
+                    
+                  end
+                  
+                  fprintf ( '\n' );
+
+                end
+                  
+            % Usual BCILAB style random shuffling of trials within folds
             else
                 % k-fold
                 for i=0:k-1
-                    inds{end+1} = sort(perm(1+floor(i*N/k) : min(N,floor((i+1)*N/k)))); end %#ok<AGROW>
+                    inds{end+1} = sort(perm(1+floor(i*N/k) : min(N,floor((i+1)*N/k)))); 
+                end %#ok<AGROW>
+                
+                
+                %% DEBUG output of class proportions for non-stratified configuration
+                if ( false )
+
+                  C1 = sum( tmptargets == 1 ) / length ( tmptargets );
+                  C2 = sum( tmptargets == 2 ) / length ( tmptargets );
+                  
+                  fprintf ( '\n\nDebugging info for non-stratified class proportions; overall: %1.2f to %1.2f', C1, C2 );
+                  
+                  for ( iDBIdx = 1:length ( inds ) )
+                    
+                    C1 = sum( tmptargets(inds{iDBIdx}) == 1 ) / length ( tmptargets(inds{iDBIdx}) );
+                    C2 = sum( tmptargets(inds{iDBIdx}) == 2 ) / length ( tmptargets(inds{iDBIdx}) );
+
+                    fprintf ( '\nFold [%2d] class ratios, %1.2f to %1.2f', iDBIdx, C1, C2 );
+                    
+                  end
+                  
+                  fprintf ( '\n' );
+
+                end
+                
             end
         end
     catch err
