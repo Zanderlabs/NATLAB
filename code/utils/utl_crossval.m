@@ -479,6 +479,13 @@ if isnumeric(N) && isscalar(N)
                 case {'chron','block'}
                     % "{'chron', k, m}" format
                     randomized = 0;
+                    
+                    if ( stratify )
+                      stratify = false;
+                      
+                      fprintf ( '\n\nError: Option stratify incompatible with chrono/block-CV; stratify disabled.\n' );
+                    end
+                    
                     if length(S) > 1
                         k = S{2}; end
                     if length(S) > 2
@@ -488,6 +495,13 @@ if isnumeric(N) && isscalar(N)
                 case {'subchron','subblock'}
                     % "{'subchron', b, k, m}" format
                     randomized = 0;
+                    
+                    if ( stratify )
+                      stratify = false;
+                      
+                      fprintf ( '\n\nError: Option stratify incompatible with chrono/block-CV; stratify disabled.\n' );
+                    end
+                    
                     if length(S) > 1 && isscalar(S{2})
                         subblocks = S{2}; end
                     if length(S) > 2 && isscalar(S{3})
