@@ -1,4 +1,4 @@
-This is BCILAB version 1.1-beta.
+This is NATLAB based on BCILAB version 1.1-beta.
 The latest versions of the toolbox can be found at github.com/sccn/BCILAB, and recent releases are also mirrored at ftp://sccn.ucsd.edu/pub/bcilab.
 
 === Getting Started ===
@@ -97,6 +97,31 @@ If you are using the toolbox for a publication, please consider citing any of th
 If you are making extensive use of the underlying EEGLAB tools, please consider citing:
 [3] Delorme A and Makeig S. "EEGLAB: an open source toolbox for analysis of single-trial EEG dynamics" J Neurosci Methods, 134:9-21, 2004.
 
+
+
+=== Changes with start of NATLAB ===
+
+- NATLAB now supports stratified cross-validation (I used Matlab Statistics toolbox though):
+  
+  [~, model, stats] = bci_train ( 'Data', EEG, 'Approach', approach, 'TargetMarkers', {'correct', 'incorrect'}, 'EvaluationScheme', [5 10], 'stratify', true );
+
+- NATLAB now automatically adds chance level and trials per class in stats for metric error
+- Raw LDA distance from hyperplane now available online
+
+  run_writelsl ( 'Model', lastmodel, 'SourceStream', ... 
+  'mystream', 'LabStreamName', 'cfr_output', 'UpdateFrequency', 10, ...
+  'OutputForm', 'rawScore' );
+
+- Raw LDA distance now returned in LDA prediction output (as 4th cell item) by bci_predict
+- Added feature to automatically purge BCILAB temp data sets
+- Configurable via bcilab_config.m and by default off (i.e. set to false)
+
+  % Automatically delete temporarily stored data sets on BCILAB startup.
+  temp_auto_clean = false;
+
+- Added explanatory output for bci_train (to address confusion about class labels and confusion matrix)
+
+- Created test script tests_NATLAB.m that runs through successfully.
 
 
 === Changes since 1.1-beta tag (Marker Streaming branch) ===
