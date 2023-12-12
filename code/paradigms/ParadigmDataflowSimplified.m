@@ -260,6 +260,7 @@ classdef ParadigmDataflowSimplified < ParadigmBaseSimplified
                 arg_norep({'features','Features'}), ...
                 arg_norep({'targets','Targets'}), ...
                 arg({'prune_trivial','PruneTrivialFeatures'},false,[],'Prune trivial features. This prunes features which are constant across the whole training set.'), ...
+                arg({'prune_samples','PruneSamples'},false,[],'Prune Inf and NAN features.'), ...
                 arg({'equalize_classes','EqualizeClasses'},false,[],'Equalize class ratios. This removes trials of the larger class(es) such that the number of exemplars for all classes is equal.'));
             
             features = args.features;
@@ -267,6 +268,11 @@ classdef ParadigmDataflowSimplified < ParadigmBaseSimplified
             
             if args.prune_trivial
                 conditioningmodel.prune_indices = find(sum(bsxfun(@minus,features(1,:),features))==0); end
+            if args.prune_samples
+                subset = find(sum(isinf(features'))== 0 & sum(isnan(features')) == 0);
+                subset = subset(:);
+                conditioningmodel.sample_subset = subset;
+            end
             if args.equalize_classes
                 classes = unique(targets);
                 num_exemplars = sum(bsxfun(@eq,classes',targets));
@@ -282,6 +288,7 @@ classdef ParadigmDataflowSimplified < ParadigmBaseSimplified
             
             conditioningmodel.prune_trivial = args.prune_trivial;
             conditioningmodel.equalize_classes = args.equalize_classes;
+            conditioningmodel.prune_samples = args.prune_samples;
         end
         
         function [features,targets] = feature_apply_conditioning(self,features,targets,conditioningmodel)
@@ -301,12 +308,38 @@ classdef ParadigmDataflowSimplified < ParadigmBaseSimplified
             %   Targets : conditioned target-value representations, as allowed by ml_train
             dp;
             
+            keep_features = features;
+            keep_targets = targets;
+            
             if conditioningmodel.prune_trivial
-                features(:,conditioningmodel.prune_indices) = []; end
+                try
+                    features(:,conditioningmodel.prune_indices) = [];
+                catch
+                    warning(['Conditioning model ''prune_trivial'' could not be applied '])
+                    features = keep_features;
+                end
+            end
+            if conditioningmodel.prune_samples
+                try
+                    features = features(conditioningmodel.sample_subset,:);
+                    if ~isempty(targets)
+                        targets = targets(conditioningmodel.sample_subset); end
+                catch
+                    warning(['Conditioning model ''prune_samples'' could not be applied '])
+                    features = keep_features;
+                    targets = keep_targets;
+                end
+            end
             if conditioningmodel.equalize_classes
-                features = features(conditioningmodel.subset,:);
-                if ~isempty(targets)
-                    targets = targets(conditioningmodel.subset); end
+                try
+                    features = features(conditioningmodel.subset,:);
+                    if ~isempty(targets)
+                        targets = targets(conditioningmodel.subset); end
+                catch
+                    warning(['Conditioning model ''equalize_classes'' could not be applied '])
+                    features = keep_features;
+                    targets = keep_targets;
+                end
             end
         end
         
