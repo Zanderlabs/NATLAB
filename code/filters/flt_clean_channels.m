@@ -99,7 +99,7 @@ function signal = flt_clean_channels(varargin)
 
 % flt_clean_channels_version<0.9.8c> -- for the cache
 
-if ~exp_beginfun('filter') return; end;
+if ~exp_beginfun('filter') return; end
 
 declare_properties('name','ChannelCleaning', 'independent_channels',false, 'independent_trials','initialize_on');
 

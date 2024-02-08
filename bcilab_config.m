@@ -74,7 +74,7 @@ data_reuses = 3;
 temp = [];
 
 % Automatically delete temporarily stored data sets on BCILAB startup. 
-temp_auto_clean = false;
+temp_auto_clean = true;
 
 
 % If you have private plugins that you manage separately from the bcilab directory tree, you can set
