@@ -313,7 +313,8 @@ else
         if ~isempty(EEG.icaact)
     		tmpsig = EEG.icaact(num,pointrange,:);
  	    else
-            tmpsig = (EEG.icaweights(num,:)*EEG.icasphere)*reshape(EEG.data(:,pointrange,:), EEG.nbchan, EEG.trials*length(pointrange));
+            %tmpsig = (EEG.icaweights(num,:)*EEG.icasphere)*reshape(EEG.data(:,pointrange,:), EEG.nbchan, EEG.trials*length(pointrange));
+            tmpsig = (EEG.icaweights(num,:)*EEG.icasphere)*reshape(EEG.data(EEG.icachansind,pointrange,:), numel(EEG.icachansind), EEG.trials*length(pointrange));
         end
 	else
 		error('You must run ICA first');

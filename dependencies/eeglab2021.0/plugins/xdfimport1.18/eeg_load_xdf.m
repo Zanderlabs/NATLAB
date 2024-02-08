@@ -130,7 +130,7 @@ end
 % events...
 event = [];
 for s=1:length(streams)
-    if (strcmp(streams{s}.info.type,'Markers') || strcmp(streams{s}.info.type,'Events')) && ~ismember(streams{s}.info.name,args.exclude_markerstreams)
+    if (strcmpi(streams{s}.info.type,'Markers') || strcmpi(streams{s}.info.type,'Events')) && ~ismember(streams{s}.info.name,args.exclude_markerstreams)
         try
             s_events = struct('type', '', 'latency', [], 'duration', num2cell(ones(1, length(streams{s}.time_stamps))));
             for e=1:length(streams{s}.time_stamps)
