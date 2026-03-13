@@ -8,10 +8,8 @@ MATLAB Toolbox for Brain-Computer Interface Research.
 This software was written at the Swartz Center for Computational Neuroscience, UCSD. 
 The toolbox was picked up by Zanderlabs in early 2019 to maintain it and keep it and make it available to researcher around the world. 
 
-# Disclaimer:
-# This code is provided "AS IS" without warranty of any kind, either
-# express or implied, including any warranty of fitness for a particular
-# purpose, merchantability, or non-infringement.
+Disclaimer:
+  This code is provided "AS IS" without warranty of any kind, either express or implied, including any warranty of fitness for a particular purpose, merchantability, or non-infringement.
 
 Original Readme
 ---------------
@@ -24,5 +22,6 @@ The design of BCILAB was inspired by a preceding toolbox (the PhyPA toolbox) wri
 This toolbox is no longer actively developped as of 2017. However, critical updates are still performed. If you are interested in further developping and maintaining BCILAB, feel free to contact us. 
 
 See documentation on the [Github repository wiki](https://github.com/sccn/BCILAB/wiki).
+
 
 
