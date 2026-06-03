@@ -1,12 +1,10 @@
-BCILAB
-======
+BCILAB / NATLAB
+===============
 
-
-
-MATLAB Toolbox for Brain-Computer Interface Research.
+MATLAB Toolbox for Brain-Computer Interface / Neuroadaptive Technology Research.
 
 This software was written at the Swartz Center for Computational Neuroscience, UCSD. 
-The toolbox was picked up by Zanderlabs in early 2019 to maintain it and keep it and make it available to researcher around the world. 
+The toolbox was picked up by Zander Labs in early 2019 to update it. The updated version is now made available to researchers around the world.
 
 Disclaimer:
   This code is provided "AS IS" without warranty of any kind, either express or implied, including any warranty of fitness for a particular purpose, merchantability, or non-infringement.
